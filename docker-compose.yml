@@ -1,9 +1,3 @@
-version: '3.8'
-
-volumes:
-  db_storage:
-  n8n_storage:
-
 services:
   postgres:
     image: postgres:16
@@ -34,14 +28,20 @@ services:
       - DB_POSTGRESDB_USER=${POSTGRES_NON_ROOT_USER}
       - DB_POSTGRESDB_PASSWORD=${POSTGRES_NON_ROOT_PASSWORD}
       - N8N_SECURE_COOKIE=false
-      - N8N_HOST=0.0.0.0
+      - N8N_HOST=automation.thangtranit90.id.vn
       - N8N_PROTOCOL=http
       - N8N_PORT=5678
+      - WEBHOOK_URL=https://automation.thangtranit90.id.vn/
       - NODE_ENV=production
       - N8N_DIAGNOSTICS_ENABLED=false
       - N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=false
+      - N8N_LOG_LEVEL=debug
+      - N8N_RESET_PASSWORD=true
+      - N8N_SKIP_CRASH_DETECTION=true
+      - N8N_RECOVERY_MODE=true
+      - N8N_RUNNERS_ENABLED=true
     ports:
-      - 5678:5678
+      - 80:5678
     links:
       - postgres
     volumes:
