@@ -1,4 +1,4 @@
-# n8n with PostgreSQL
+# n8n with PostgreSQL and redis cache
 
 Starts n8n with PostgreSQL as database. Using with mode proxy flexible on cloudflare.
 

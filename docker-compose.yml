@@ -1,3 +1,8 @@
+volumes:
+  db_storage:
+  n8n_storage:
+  redis_storage:
+
 services:
   postgres:
     image: postgres:16
@@ -17,35 +22,56 @@ services:
       timeout: 5s
       retries: 10
 
+  redis:
+    image: redis:6-alpine
+    restart: always
+    ports:
+      - 6379:6379
+    volumes:
+      - redis_storage:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
   n8n:
     image: docker.n8n.io/n8nio/n8n:1.84.0
     restart: always
     environment:
-      - DB_TYPE=postgresdb
-      - DB_POSTGRESDB_HOST=postgres
-      - DB_POSTGRESDB_PORT=5432
+      - DB_TYPE
+      - DB_POSTGRESDB_HOST
+      - DB_POSTGRESDB_PORT
       - DB_POSTGRESDB_DATABASE=${POSTGRES_DB}
       - DB_POSTGRESDB_USER=${POSTGRES_NON_ROOT_USER}
       - DB_POSTGRESDB_PASSWORD=${POSTGRES_NON_ROOT_PASSWORD}
-      - N8N_SECURE_COOKIE=false
-      - N8N_HOST=automation.thangtranit90.id.vn
-      - N8N_PROTOCOL=http
-      - N8N_PORT=5678
-      - WEBHOOK_URL=https://automation.thangtranit90.id.vn/
-      - NODE_ENV=production
-      - N8N_DIAGNOSTICS_ENABLED=false
-      - N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=false
-      - N8N_LOG_LEVEL=debug
-      - N8N_RESET_PASSWORD=true
-      - N8N_SKIP_CRASH_DETECTION=true
-      - N8N_RECOVERY_MODE=true
-      - N8N_RUNNERS_ENABLED=true
+      - N8N_SECURE_COOKIE
+      - N8N_HOST
+      - N8N_PROTOCOL
+      - N8N_PORT
+      - WEBHOOK_URL
+      - NODE_ENV
+      - N8N_DIAGNOSTICS_ENABLED
+      - N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS
+      - N8N_LOG_LEVEL
+      - N8N_RESET_PASSWORD
+      - N8N_RUNNERS_ENABLED
+      - QUEUE_BULL_REDIS_HOST
+      - N8N_SKIP_CRASH_DETECTION
+      - N8N_RECOVERY_MODE
+      - N8N_DIAGNOSTICS_CONFIG_DISABLED
+      - N8N_METRICS
+      - N8N_HIRING_BANNER_ENABLED
+      - N8N_VERSION_NOTIFICATIONS_ENABLED
     ports:
       - 80:5678
     links:
       - postgres
+      - redis
     volumes:
       - n8n_storage:/home/node/.n8n
     depends_on:
       postgres:
+        condition: service_healthy
+      redis:
         condition: service_healthy
